@@ -12,6 +12,16 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
+;; Fix native-comp on macOS: GUI Emacs needs Homebrew gcc in PATH
+(when (and (eq system-type 'darwin) (native-comp-available-p))
+  (let* ((gcc-version "15")
+         (homebrew-prefix "/opt/homebrew")
+         (gcc-bin (concat homebrew-prefix "/bin"))
+         (gcc-lib (concat homebrew-prefix "/lib/gcc/" gcc-version)))
+    (setenv "PATH" (concat gcc-bin ":" (getenv "PATH")))
+    (add-to-list 'exec-path gcc-bin)
+    ;; libgccjit needs LIBRARY_PATH to find its libraries
+    (setenv "LIBRARY_PATH" (concat gcc-lib ":" (getenv "LIBRARY_PATH")))))
 
 ;;----------------------------------------------------------
 ;;----------------------------------------------------------
@@ -182,13 +192,60 @@
 (setq org-startup-indented t)
 (global-set-key (kbd "C-c a") 'org-agenda)
 
-(defun insert-today ()
-  (interactive)
-  (insert (format-time-string "%y-%m-%d")))
-
 
 ;;
 
+
+;;----------------------------------------------------------
+;;----------------------------------------------------------
+
+;; GUI Configuration (matching kitty theme)
+
+(when (display-graphic-p)
+  ;; Font: Berkeley Mono at 19pt (matching kitty)
+  (set-face-attribute 'default nil
+                      :family "Berkeley Mono"
+                      :height 190)  ; height is in 1/10 pt
+
+  ;; Color scheme matching usgc kitty theme
+  (set-foreground-color "#459a65")
+  (set-background-color "#000000")
+  (set-cursor-color "#869c96")
+
+  ;; Selection (region) colors
+  (set-face-attribute 'region nil
+                      :background "#017b01"
+                      :foreground "#f6c443")
+
+  ;; Terminal color mappings for ANSI colors
+  (setq ansi-color-names-vector
+        ["#262626"   ; black
+         "#cd0400"   ; red
+         "#f6c443"   ; green
+         "#f6c443"   ; yellow
+         "#6b40ef"   ; blue
+         "#ea3d8d"   ; magenta
+         "#3377f7"   ; cyan
+         "#ffffff"]) ; white
+
+  ;; Link/URL color
+  (set-face-attribute 'link nil :foreground "#47a0b2")
+
+  ;; Mode line styling
+  (set-face-attribute 'mode-line nil
+                      :background "#262626"
+                      :foreground "#459a65")
+  (set-face-attribute 'mode-line-inactive nil
+                      :background "#1a1a1a"
+                      :foreground "#484847"))
+
+;; Also set font for daemon/emacsclient frames
+(add-to-list 'default-frame-alist '(font . "Berkeley Mono-19"))
+(add-to-list 'default-frame-alist '(foreground-color . "#459a65"))
+(add-to-list 'default-frame-alist '(background-color . "#000000"))
+
+;;----------------------------------------------------------
+;;----------------------------------------------------------
 
 ;; Set by emacs
 (custom-set-variables
