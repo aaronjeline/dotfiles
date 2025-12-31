@@ -12,6 +12,19 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
+;; macOS GUI performance fixes
+(when (eq system-type 'darwin)
+  (setq frame-resize-pixelwise t)
+  (setq ns-use-native-fullscreen nil)
+  ;; Reduce rendering/
+  (setq inhibit-compacting-font-caches t)
+  ;; Don't resize frame when font changes
+  (setq frame-inhibit-implied-resize t))
+
+;; General performance
+(setq gc-cons-threshold (* 100 1024 1024))  ; 100MB during runtime
+(setq read-process-output-max (* 1024 1024)) ; 1MB for LSP
+
 ;; Fix native-comp on macOS: GUI Emacs needs Homebrew gcc in PATH
 (when (and (eq system-type 'darwin) (native-comp-available-p))
   (let* ((gcc-version "15")
