@@ -19,7 +19,12 @@
   ;; Reduce rendering/
   (setq inhibit-compacting-font-caches t)
   ;; Don't resize frame when font changes
-  (setq frame-inhibit-implied-resize t))
+  (setq frame-inhibit-implied-resize t)
+
+  ;; Add opam binaries to PATH for GUI Emacs
+  (let ((opam-bin (expand-file-name "~/.opam/default/bin")))
+    (setenv "PATH" (concat opam-bin ":" (getenv "PATH")))
+    (add-to-list 'exec-path opam-bin)))
 
 ;; General performance
 (setq gc-cons-threshold (* 100 1024 1024))  ; 100MB during runtime
@@ -61,9 +66,11 @@
 ;; Set up mouse integration
 (xterm-mouse-mode 1)
 ;; Smooth scrolling
-(setq mouse-wheel-scroll-amount '(3 ((shift) . 1)))
-;; NO mouse accel
-(setq mouse-wheel-progressive-scroll nil) 
+;(setq mouse-wheel-scroll-amount '(3 ((shift) . 1)))
+(setq mouse-wheel-scroll-amount nil)
+(setq mouse-wheel-progressive-scroll t) 
+(setq mouse-whell-progressive-speed t)
+
 
 (add-hook 'after-init-hook
 	  (lambda ()
@@ -78,6 +85,7 @@
 			    'scroll-up-line)))
 
 	  
+(global-set-key (kbd "C-x C-b") 'ibuffer)
 
 ;;----------------------------------------------------------
 ;;----------------------------------------------------------
@@ -108,6 +116,20 @@
   :hook (tuareg-mode . utop-minor-mode)
   :config
   (setq utop-command "opam exec -- utop -emacs"))
+
+(let ((opam-share
+       (ignore-errors (car (process-lines "opam" "var" "share")))))
+      (when (and opam-share (file-directory-p opam-share))
+       ;; Register Merlin
+	(add-to-list 'load-path
+		     (expand-file-name "emacs/site-lisp" opam-share))
+       (autoload 'merlin-mode "merlin" nil t nil)
+       ;; Automatically start it in OCaml buffers
+       (add-hook 'tuareg-mode-hook 'merlin-mode t)
+       (add-hook 'caml-mode-hook 'merlin-mode t)
+       ;; Use opam switch to lookup ocamlmerlin binary
+       (setq merlin-command 'opam)
+       ))
 
 ;; ocamlformat - load from opam instead of broken MELPA package
 (let ((opam-share (ignore-errors (car (process-lines "opam" "var" "share")))))
