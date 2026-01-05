@@ -46,6 +46,9 @@
 
 ;; Global editor options
 
+;; Disable splash screen, start with scratch buffer
+(setq inhibit-startup-screen t)
+
 ;; Enable syntax highlighting
 (global-font-lock-mode 1)
 
