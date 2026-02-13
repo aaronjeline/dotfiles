@@ -166,6 +166,109 @@ vim.keymap.set('n', '<C-t>', toggle_tree)
 
 -------------------------------------------------------------------------------
 --
+-- custom commands
+--
+-------------------------------------------------------------------------------
+-- :repl — open a Python REPL with the current file loaded
+local function open_repl()
+    local fname = vim.fn.expand('%:p')
+    if fname == '' then
+        vim.notify('No file associated with current buffer', vim.log.levels.ERROR)
+        return
+    end
+    -- Save the file if modified
+    vim.cmd('update')
+    local escaped = vim.fn.shellescape(fname)
+    -- Open a bottom split with a terminal running python -i <file>
+    vim.cmd('botright split')
+    vim.cmd('resize 15')
+    vim.cmd('terminal python -i ' .. escaped)
+end
+-- User commands must start with uppercase; provide alias for :repl
+vim.api.nvim_create_user_command('Repl', open_repl, {})
+-- Abbreviation so typing :repl expands to :Repl only when standalone
+vim.cmd([[cnoreabbrev <expr> repl ((getcmdtype() == ':' and getcmdline() ==# 'repl') ? 'Repl' : 'repl')]])
+
+-- :Pytest — run pytest in a bottom split
+local function run_pytest()
+    local fname = vim.fn.expand('%:p')
+    if fname == '' then
+        vim.notify('No file associated with current buffer', vim.log.levels.ERROR)
+        return
+    end
+    -- Save current buffer if modified
+    vim.cmd('update')
+    local escaped = vim.fn.shellescape(fname)
+    vim.cmd('botright split')
+    vim.cmd('resize 15')
+    vim.cmd('terminal pytest ' .. escaped)
+end
+
+-- :PytestNearest — run pytest for nearest test under cursor using -k
+local function nearest_pytest_expr()
+    local bufnr = 0
+    local cursor = vim.api.nvim_win_get_cursor(0)
+    local lines = vim.api.nvim_buf_get_lines(bufnr, 0, cursor[1], false)
+    local test_name = nil
+    local class_name = nil
+    for i = #lines, 1, -1 do
+        local line = lines[i]
+        if not test_name then
+            local m = line:match('^%s*def%s+(test[%w_]+)')
+            if m then test_name = m end
+        end
+        if not class_name then
+            local c = line:match('^%s*class%s+(Test[%w_]+)')
+            if c then class_name = c end
+        end
+        if test_name and class_name then break end
+    end
+    if not test_name then return nil end
+    if class_name then
+        return class_name .. ' and ' .. test_name
+    else
+        return test_name
+    end
+end
+
+local function run_pytest_nearest()
+    local fname = vim.fn.expand('%:p')
+    if fname == '' then
+        vim.notify('No file associated with current buffer', vim.log.levels.ERROR)
+        return
+    end
+    vim.cmd('update')
+    local escaped = vim.fn.shellescape(fname)
+    local expr = nearest_pytest_expr()
+    vim.cmd('botright split')
+    vim.cmd('resize 15')
+    if expr then
+        vim.cmd('terminal pytest ' .. escaped .. ' -k ' .. vim.fn.shellescape(expr))
+    else
+        vim.cmd('terminal pytest ' .. escaped)
+    end
+end
+
+-- Map <leader>r to :Repl in Python buffers (override LSP rename there)
+vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'python',
+    callback = function(ev)
+        vim.keymap.set('n', '<leader>r', open_repl, { buffer = ev.buf, silent = true, desc = 'Python REPL (current file)' })
+        vim.keymap.set('n', '<leader>t', run_pytest, { buffer = ev.buf, silent = true, desc = 'Run pytest' })
+        vim.keymap.set('n', '<leader>tn', run_pytest_nearest, { buffer = ev.buf, silent = true, desc = 'Run pytest (nearest test)' })
+    end,
+})
+vim.api.nvim_create_autocmd('LspAttach', {
+    callback = function(ev)
+        if vim.bo[ev.buf].filetype == 'python' then
+            vim.keymap.set('n', '<leader>r', open_repl, { buffer = ev.buf, silent = true, desc = 'Python REPL (current file)' })
+            vim.keymap.set('n', '<leader>t', run_pytest, { buffer = ev.buf, silent = true, desc = 'Run pytest' })
+            vim.keymap.set('n', '<leader>tn', run_pytest_nearest, { buffer = ev.buf, silent = true, desc = 'Run pytest (nearest test)' })
+        end
+    end,
+})
+-------------------------------------------------------------------------------
+--
 -- autocommands
 --
 -------------------------------------------------------------------------------
@@ -255,7 +358,7 @@ require("lazy").setup({
     {
         "morhetz/gruvbox",
         config = function() 
-            vim.cmd([[colorscheme gruvbox]])
+            vim.cmd([[colorscheme usgc]])
         end
     },
 	-- main color scheme
@@ -402,6 +505,11 @@ require("lazy").setup({
 				},
 			}
 
+            -- haskell
+            require'lspconfig'.hls.setup{
+                filetypes = { 'haskell', 'lhaskell', 'hs' }
+            }
+
 			-- Bash LSP
 			local configs = require 'lspconfig.configs'
 			if not configs.bash_lsp and vim.fn.executable('bash-language-server') == 1 then
@@ -538,6 +646,11 @@ require("lazy").setup({
 		end
 	},
 	-- language support
+    -- puresciprt
+    {
+        'purescript-contrib/purescript-vim',
+        ft = { "purs" },
+    },
 	-- terraform
 	{
 		'hashivim/vim-terraform',
@@ -596,4 +709,3 @@ require("lazy").setup({
 
 
 require('nvim-tree').setup()
-
