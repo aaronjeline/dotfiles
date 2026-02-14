@@ -11,24 +11,10 @@ vim.g.mapleader = " "
 vim.opt.foldenable = false
 vim.opt.foldmethod = 'manual'
 vim.opt.foldlevelstart = 99
--- very basic "continue indent" mode (autoindent) is always on in neovim
--- could try smartindent/cindent, but meh.
--- vim.opt.cindent = true
--- XXX
--- vim.opt.cmdheight = 2
--- vim.opt.completeopt = 'menuone,noinsert,noselect'
--- not setting updatedtime because I use K to manually trigger hover effects
--- and lowering it also changes how frequently files are written to swap.
--- vim.opt.updatetime = 300
--- if key combos seem to be "lagging"
--- http://stackoverflow.com/questions/2158516/delay-before-o-opens-a-new-line
--- vim.opt.timeoutlen = 300
 -- keep more context on screen while scrolling
 vim.opt.scrolloff = 2
 -- never show me line breaks if they're not there
 vim.opt.wrap = false
--- always draw sign column. prevents buffer moving when adding/deleting sign
---vim.opt.signcolumn = 'yes'
 -- sweet sweet relative line numbers
 vim.opt.relativenumber = true
 -- and show the absolute line number for the current line
@@ -67,9 +53,9 @@ vim.opt.diffopt:append('iwhite')
 vim.opt.diffopt:append('algorithm:histogram')
 vim.opt.diffopt:append('indent-heuristic')
 -- show a column at 80 characters as a guide for long lines
--- vim.opt.colorcolumn = '80'
+vim.opt.colorcolumn = '80'
 --- except in Rust where the rule is 100 characters
---vim.api.nvim_create_autocmd('Filetype', { pattern = 'rust', command = 'set colorcolumn=100' })
+vim.api.nvim_create_autocmd('Filetype', { pattern = 'rust', command = 'set colorcolumn=100' })
 -- show more hidden characters
 -- also, show tabs nicer
 vim.opt.listchars = 'tab:^ ,nbsp:¬,extends:»,precedes:«,trail:•'
@@ -154,8 +140,9 @@ vim.keymap.set('n', '<leader>m', 'ct_')
 -- F1 is pretty close to Esc, so you probably meant Esc
 vim.keymap.set('', '<F1>', '<Esc>')
 vim.keymap.set('i', '<F1>', '<Esc>')
--- Use control t to open the tree
 
+
+-- Use control t to open the tree
 toggle_tree = function()
     api = require('nvim-tree.api')
     api.tree.toggle()
@@ -301,22 +288,6 @@ vim.api.nvim_create_autocmd('BufRead', { pattern = '*.orig', command = 'set read
 vim.api.nvim_create_autocmd('BufRead', { pattern = '*.pacnew', command = 'set readonly' })
 -- leave paste mode when leaving insert mode (if it was on)
 vim.api.nvim_create_autocmd('InsertLeave', { pattern = '*', command = 'set nopaste' })
--- help filetype detection (add as needed)
---vim.api.nvim_create_autocmd('BufRead', { pattern = '*.ext', command = 'set filetype=someft' })
--- correctly classify mutt buffers
-local email = vim.api.nvim_create_augroup('email', { clear = true })
-vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
-	pattern = '/tmp/mutt*',
-	group = email,
-	command = 'setfiletype mail',
-})
--- also, produce "flowed text" wrapping
--- https://brianbuccola.com/line-breaks-in-mutt-and-vim/
-vim.api.nvim_create_autocmd('Filetype', {
-  pattern = 'mail',
-  group = email,
-  command = 'setlocal formatoptions+=w',
-})
 -- shorter columns in text because it reads better that way
 local text = vim.api.nvim_create_augroup('text', { clear = true })
 for _, pat in ipairs({'text', 'markdown', 'mail', 'gitcommit'}) do
@@ -332,8 +303,8 @@ vim.api.nvim_create_autocmd('Filetype', {
 	group = text,
 	command = 'setlocal spell tw=80 colorcolumn=81',
 })
--- TODO: no autocomplete in text
 
+vim.cmd([[colorscheme usgc]])
 -------------------------------------------------------------------------------
 --
 -- plugin configuration
@@ -354,37 +325,10 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 -- then, setup!
+
+
+
 require("lazy").setup({
-    {
-        "morhetz/gruvbox",
-        config = function() 
-            vim.cmd([[colorscheme usgc]])
-        end
-    },
-	-- main color scheme
---	{
---		"RRethy/base16-nvim",
---		lazy = false, -- load at start
---		priority = 1000, -- load first
---		config = function()
- --           vim.cmd([[colorscheme torte]])
-			--vim.cmd([[colorscheme base16-espresso]])
-			--vim.o.background = 'dark'
-			-- XXX: hi Normal ctermbg=NONE
-			-- Make comments more prominent -- they are important.
-			--local bools = vim.api.nvim_get_hl(0, { name = 'Boolean' })
-			--vim.api.nvim_set_hl(0, 'Comment', bools)
-			-- Make it clearly visible which argument we're at.
-			--local marked = vim.api.nvim_get_hl(0, { name = 'PMenu' })
-			--vim.api.nvim_set_hl(0, 'LspSignatureActiveParameter', { fg = marked.fg, bg = marked.bg, ctermfg = marked.ctermfg, ctermbg = marked.ctermbg, bold = true })
-			-- XXX
-			-- Would be nice to customize the highlighting of warnings and the like to make
-			-- them less glaring. But alas
-			-- https://github.com/nvim-lua/lsp_extensions.nvim/issues/21
-			-- call Base16hi("CocHintSign", g:base16_gui03, "", g:base16_cterm03, "", "", "")
---		end
---	},
-	-- nice bar at the bottom
 	{
 		'itchyny/lightline.vim',
 		lazy = false, -- also load at start since it's UI
