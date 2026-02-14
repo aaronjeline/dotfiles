@@ -595,11 +595,6 @@ require("lazy").setup({
         'purescript-contrib/purescript-vim',
         ft = { "purs" },
     },
-	-- terraform
-	{
-		'hashivim/vim-terraform',
-		ft = { "terraform" },
-	},
 	-- svelte
 	{
 		'evanleck/vim-svelte',
