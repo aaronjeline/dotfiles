@@ -454,6 +454,9 @@ require("lazy").setup({
                 filetypes = { 'haskell', 'lhaskell', 'hs' }
             }
 
+            -- OCaml
+            lspconfig.ocamllsp.setup{}
+
 			-- Bash LSP
 			local configs = require 'lspconfig.configs'
 			if not configs.bash_lsp and vim.fn.executable('bash-language-server') == 1 then
