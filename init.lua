@@ -369,13 +369,6 @@ require("lazy").setup({
 			)
 		end
 	},
-	-- quick navigation
-	{
-		'ggandor/leap.nvim',
-		config = function()
-			require('leap').create_default_mappings()
-		end
-	},
 	-- better %
 	{
 		'andymass/vim-matchup',
@@ -395,7 +388,7 @@ require("lazy").setup({
 	{
 		'junegunn/fzf.vim',
 		dependencies = {
-			{ 'junegunn/fzf', dir = '~/.fzf', build = './install --all' },
+			{ 'junegunn/fzf' },
 		},
 		config = function()
 			-- stop putting a giant window over my editor
@@ -424,12 +417,8 @@ require("lazy").setup({
 	{
 		'neovim/nvim-lspconfig',
 		config = function()
-			-- Setup language servers.
-			local lspconfig = require('lspconfig')
-
 			-- Rust
-			lspconfig.rust_analyzer.setup {
-				-- Server-specific settings. See `:help lspconfig-setup`
+			vim.lsp.config('rust_analyzer', {
 				settings = {
 					["rust-analyzer"] = {
 						cargo = {
@@ -447,34 +436,26 @@ require("lazy").setup({
 						},
 					},
 				},
-			}
+			})
+			vim.lsp.enable('rust_analyzer')
 
-            -- haskell
-            require'lspconfig'.hls.setup{
-                filetypes = { 'haskell', 'lhaskell', 'hs' }
-            }
+			-- Haskell
+			vim.lsp.config('hls', {
+				filetypes = { 'haskell', 'lhaskell', 'hs' },
+			})
+			vim.lsp.enable('hls')
 
-            -- OCaml
-            lspconfig.ocamllsp.setup{}
+			-- OCaml
+			vim.lsp.enable('ocamllsp')
 
 			-- Bash LSP
-			local configs = require 'lspconfig.configs'
-			if not configs.bash_lsp and vim.fn.executable('bash-language-server') == 1 then
-				configs.bash_lsp = {
-					default_config = {
-						cmd = { 'bash-language-server', 'start' },
-						filetypes = { 'sh' },
-						root_dir = require('lspconfig').util.find_git_ancestor,
-						init_options = {
-							settings = {
-								args = {}
-							}
-						}
-					}
-				}
-			end
-			if configs.bash_lsp then
-				lspconfig.bash_lsp.setup {}
+			if vim.fn.executable('bash-language-server') == 1 then
+				vim.lsp.config('bash_lsp', {
+					cmd = { 'bash-language-server', 'start' },
+					filetypes = { 'sh' },
+					root_markers = { '.git' },
+				})
+				vim.lsp.enable('bash_lsp')
 			end
 
 			-- Global mappings.
