@@ -369,6 +369,13 @@ require("lazy").setup({
 			)
 		end
 	},
+	-- quick navigation
+	{
+        url = "https://codeberg.org/andyg/leap.nvim",
+		config = function()
+			-- default mappings (s, S, gs) are applied automatically in leap v2+
+		end
+	},
 	-- better %
 	{
 		'andymass/vim-matchup',
@@ -450,12 +457,7 @@ require("lazy").setup({
 
 			-- Bash LSP
 			if vim.fn.executable('bash-language-server') == 1 then
-				vim.lsp.config('bash_lsp', {
-					cmd = { 'bash-language-server', 'start' },
-					filetypes = { 'sh' },
-					root_markers = { '.git' },
-				})
-				vim.lsp.enable('bash_lsp')
+				vim.lsp.enable('bashls')
 			end
 
 			-- Global mappings.
