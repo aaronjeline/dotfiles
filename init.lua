@@ -313,7 +313,7 @@ vim.cmd([[colorscheme usgc]])
 -- first, grab the manager
 -- https://github.com/folke/lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
+if not vim.uv.fs_stat(lazypath) then
 	vim.fn.system({
 		"git",
 		"clone",
@@ -359,13 +359,13 @@ require("lazy").setup({
 				end
 			end
 			-- https://github.com/itchyny/lightline.vim/issues/657
-			vim.api.nvim_exec(
+			vim.api.nvim_exec2(
 				[[
 				function! g:LightlineFilename()
 					return v:lua.LightlineFilenameInLua()
 				endfunction
 				]],
-				true
+				{ output = false }
 			)
 		end
 	},
@@ -472,9 +472,6 @@ require("lazy").setup({
 			vim.api.nvim_create_autocmd('LspAttach', {
 				group = vim.api.nvim_create_augroup('UserLspConfig', {}),
 				callback = function(ev)
-					-- Enable completion triggered by <c-x><c-o>
-					vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
-
 					-- Buffer local mappings.
 					-- See `:help vim.lsp.*` for documentation on any of the below functions
 					local opts = { buffer = ev.buf }
@@ -528,9 +525,8 @@ require("lazy").setup({
 			local cmp = require'cmp'
 			cmp.setup({
 				snippet = {
-					-- REQUIRED by nvim-cmp. get rid of it once we can
 					expand = function(args)
-						vim.fn["vsnip#anonymous"](args.body)
+						vim.snippet.expand(args.body)
 					end,
 				},
 				mapping = cmp.mapping.preset.insert({
@@ -562,7 +558,7 @@ require("lazy").setup({
 	},
 	-- inline function signatures
 	{
-		"ray-x/lsp_signature.nvim",
+		dir = "/Users/aeline/src/lsp_signature.nvim",
 		event = "VeryLazy",
 		opts = {},
 		config = function(_, opts)
@@ -598,7 +594,8 @@ require("lazy").setup({
 	},
 	-- rust
 	{
-		'rust-lang/rust.vim',
+        --dir = "/Users/aeline/src/rust.vim/",
+		"rust-lang/rust.vim",
 		ft = { "rust" },
 		config = function()
 			vim.g.rustfmt_autosave = 1
