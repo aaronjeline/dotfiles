@@ -74,6 +74,7 @@
   (interactive)
   (affe-find my/base-dir))
 
+(message "posframe loaded: %s" (featurep 'posframe))
 (load (expand-file-name "telescope.el" user-emacs-directory))
 
 (defun my/telescope-find-files ()

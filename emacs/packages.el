@@ -1,21 +1,25 @@
 ;;; packages.el --- Package configuration -*- lexical-binding: t -*-
-
+(setq use-package-always-ensure t)
 ;;; evil mode (vim bindings)
 (setq evil-want-keybinding nil)  ; required before loading evil-collection
 (setq evil-search-module 'evil-search)  ; required for cgn
 (setq evil-undo-system 'undo-redo)  ; use emacs 28+ native undo-redo
-(rc/require 'evil 'evil-leader 'evil-collection 'evil-commentary)
-(global-evil-leader-mode)
-(evil-leader/set-leader "<SPC>")
-(evil-mode 1)
-(evil-collection-init)
-(evil-commentary-mode 1)
+(use-package evil :config (evil-mode 1))
+(use-package evil-leader :config
+             (global-evil-leader-mode)
+             (evil-leader/set-leader "<SPC>"))
+(use-package evil-collection :config (evil-collection-init))
+(use-package evil-commentary :config (evil-commentary-mode 1))
 
 ;;; Vertico + Consult + Orderless (telescope-like fuzzy finding)
-(rc/require 'vertico 'consult 'orderless 'marginalia 'vertico-posframe 'fzf 'affe)
-(vertico-mode 1)
-(vertico-posframe-mode 1)
-(marginalia-mode 1)
+(use-package vertico :config (vertico-mode 1))
+(use-package consult)
+(use-package orderless)
+(use-package marginalia :config (marginalia-mode 1))
+(use-package posframe :demand t)
+(use-package vertico-posframe :demand t :config (vertico-posframe-mode 1))
+(use-package fzf)
+(use-package affe)
 (recentf-mode 1)
 
 (setq vertico-posframe-parameters
@@ -39,51 +43,63 @@
 (setq consult-preview-key 'any)
 
 ;;; magit
-(rc/require 'magit)
+(use-package magit)
 (setq magit-auto-revert-mode nil)
 
-;;; multiple cursors
-(rc/require 'multiple-cursors)
-
 ;;; Move Text
-(rc/require 'move-text)
+;(rc/require 'move-text)
 
 ;;; Company (autocompletion)
-(rc/require 'company)
-(global-company-mode)
+(use-package company :config (global-company-mode))
 
 ;;; Language modes
-(rc/require 'rust-mode 'web-mode 'typescript-mode 'tuareg 'ocamlformat 'dune 'utop)
+(use-package rust-mode)
+(use-package web-mode)
+(use-package typescript-mode)
+(use-package tuareg)
+(use-package ocamlformat)
+(use-package dune)
+(use-package utop)
 
 (setq utop-command "opam exec -- utop -emacs")
 
 ;;; Tree-sitter text objects (vif, vaf, vic, vac, etc.)
-(rc/require 'tree-sitter 'tree-sitter-langs 'evil-textobj-tree-sitter)
-(global-tree-sitter-mode)
-(add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
-(define-key evil-outer-text-objects-map "f" (evil-textobj-tree-sitter-get-textobj "function.outer"))
-(define-key evil-inner-text-objects-map "f" (evil-textobj-tree-sitter-get-textobj "function.inner"))
-(define-key evil-outer-text-objects-map "c" (evil-textobj-tree-sitter-get-textobj "class.outer"))
-(define-key evil-inner-text-objects-map "c" (evil-textobj-tree-sitter-get-textobj "class.inner"))
+(use-package tree-sitter
+             :config
+                (global-tree-sitter-mode)
+                (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+                (define-key evil-outer-text-objects-map "f"
+                            (evil-textobj-tree-sitter-get-textobj "function.outer"))
+                (define-key evil-inner-text-objects-map "f"
+                            (evil-textobj-tree-sitter-get-textobj "function.inner"))
+                (define-key evil-outer-text-objects-map "c"
+                            (evil-textobj-tree-sitter-get-textobj "class.outer"))
+                (define-key evil-inner-text-objects-map "c"
+                            (evil-textobj-tree-sitter-get-textobj "class.inner")))
+
+(use-package tree-sitter-langs)
+(use-package evil-textobj-tree-sitter)
 
 ;;; CSS color preview
-(rc/require 'rainbow-mode)
-(add-hook 'css-mode-hook 'rainbow-mode)
-(add-hook 'html-mode-hook 'rainbow-mode)
-(add-hook 'js-mode-hook 'rainbow-mode)
-(add-hook 'web-mode-hook 'rainbow-mode)
-(add-hook 'scss-mode-hook 'rainbow-mode)
-(add-hook 'conf-mode-hook 'rainbow-mode)
-(add-hook 'toml-mode-hook 'rainbow-mode)
-(add-hook 'yaml-mode-hook 'rainbow-mode)
-(add-hook 'conf-toml-mode-hook 'rainbow-mode)
+(use-package rainbow-mode
+             :config
+    (add-hook 'css-mode-hook 'rainbow-mode)
+    (add-hook 'html-mode-hook 'rainbow-mode)
+    (add-hook 'js-mode-hook 'rainbow-mode)
+    (add-hook 'web-mode-hook 'rainbow-mode)
+    (add-hook 'scss-mode-hook 'rainbow-mode)
+    (add-hook 'conf-mode-hook 'rainbow-mode)
+    (add-hook 'toml-mode-hook 'rainbow-mode)
+    (add-hook 'yaml-mode-hook 'rainbow-mode)
+    (add-hook 'conf-toml-mode-hook 'rainbow-mode))
 
 ;;; Treesitter context (sticky function header)
-(rc/require 'topsy)
-(add-hook 'prog-mode-hook 'topsy-mode)
+(use-package topsy
+             :config (add-hook 'prog-mode-hook 'topsy-mode))
 
 ;;; Org mode
-(rc/require 'org-superstar 'org-fancy-priorities)
+(use-package org-superstar)
+(use-package org-fancy-priorities)
 
 (setq org-directory "~/org/")
 (setq org-agenda-files '("~/repos/agendas/private.org"))
@@ -115,7 +131,8 @@
 (setq org-return-follows-link t)
 
 ;;; Org Present (presentation mode)
-(rc/require 'org-present 'visual-fill-column)
+(use-package org-present)
+(use-package visual-fill-column)
 
 (defun my/org-present-start ()
   ;; Smaller, more readable font scaling
@@ -152,7 +169,7 @@
 
 ;;; LSP (eglot is built-in to Emacs 29+)
 (require 'eglot)
-(rc/require 'eldoc-box)
+(use-package eldoc-box)
 
 ;; Auto-start LSP for these modes
 (add-hook 'rust-mode-hook 'eglot-ensure)
@@ -181,11 +198,10 @@
 
 
 ;;; Direnv integration (loads devshell environment)
-(rc/require 'envrc)
-(envrc-global-mode)
+;(use-package envrc :config (envrc-global-mode))
 
 ;;; vterm (terminal emulator)
-(rc/require 'vterm)
+(use-package vterm)
 (defun rc/find-shell ()
   "Find a suitable shell, checking common locations."
   (or (getenv "SHELL")
@@ -199,9 +215,8 @@
 (setq vterm-kill-buffer-on-exit t)
 
 ;;; Theme
-;; (rc/require-theme 'gruber-darker)
-(rc/require 'doom-themes)
-(load-theme 'doom-palenight t)
+(use-package doom-themes
+  :config (load-theme 'doom-gruvbox t))
 
 ;;; Clean up modeline (hide minor modes)
 (setq eldoc-minor-mode-string nil)

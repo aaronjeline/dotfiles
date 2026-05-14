@@ -8,7 +8,7 @@ ln -s $(realpath ./usgc.lua) ~/.config/nvim/colors/usgc.lua
 
 # Configure emacs
 
-emacs_dir=$(realpath ~/.emacs.d)
+emacs_dir="$HOME"/.emacs.d
 
 if [ ! -d $emacs_dir ]; then
     mkdir $emacs_dir
