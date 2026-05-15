@@ -96,9 +96,15 @@
     "gd" 'xref-find-definitions
     "gr" 'xref-find-references))
 
+(defun swap-buffers ()
+  "Swaps buffers"
+  (interactive)
+  (switch-to-buffer (other-buffer)))
+
 ;;; Leader keybindings (SPC)
 (evil-leader/set-key
   ;; files
+  "<SPC>" 'swap-buffers
   "ff" 'find-file
   "fF" 'my/fzf-find-file
   "fg" 'my/consult-ripgrep
@@ -109,6 +115,7 @@
   "fp" 'my/switch-project
   ;; buffers
   "bb" 'consult-buffer
+  ";"  'consult-buffer
   "fb" 'consult-buffer
   "bp" 'previous-buffer
   "bn" 'next-buffer

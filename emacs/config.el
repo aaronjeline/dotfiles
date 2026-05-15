@@ -9,7 +9,7 @@
 (add-hook 'org-mode-hook 'visual-line-mode)
 
 ; Config default font
-(add-to-list 'default-frame-alist `(font . "Berkeley Mono-24"))
+(add-to-list 'default-frame-alist `(font . "Berkeley Mono-19"))
 
 (tool-bar-mode 0)
 (menu-bar-mode 0)
