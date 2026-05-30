@@ -304,7 +304,7 @@ vim.api.nvim_create_autocmd('Filetype', {
 	command = 'setlocal spell tw=80 colorcolumn=81',
 })
 
-vim.cmd([[colorscheme usgc]])
+
 -------------------------------------------------------------------------------
 --
 -- plugin configuration
@@ -329,6 +329,11 @@ vim.opt.rtp:prepend(lazypath)
 
 
 require("lazy").setup({
+    {
+        "ellisonleao/gruvbox.nvim",
+        priority = 1000,
+        config = true
+    },
 	{
 		'itchyny/lightline.vim',
 		lazy = false, -- also load at start since it's UI
@@ -628,6 +633,8 @@ require("lazy").setup({
     },
 })
 
+vim.o.background = "dark" -- or "light" for light mode
+vim.cmd([[colorscheme gruvbox]])
 
 
 require('nvim-tree').setup()
