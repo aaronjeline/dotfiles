@@ -11,6 +11,9 @@
 (use-package evil-collection :config (evil-collection-init))
 (use-package evil-commentary :config (evil-commentary-mode 1))
 
+;; Improve garbage collector
+(use-package gcmh :demand t :config (gcmh-mode 1))
+
 ;;; Vertico + Consult + Orderless (telescope-like fuzzy finding)
 (use-package vertico :config (vertico-mode 1))
 (use-package consult)
