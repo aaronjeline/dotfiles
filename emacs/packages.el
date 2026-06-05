@@ -50,7 +50,8 @@
 ;(rc/require 'move-text)
 
 ;;; Company (autocompletion)
-(use-package company :config (global-company-mode))
+(use-package company :config (global-company-mode)
+  :hook (racket-mode . company-mode))
 
 ;;; Language modes
 (use-package rust-mode)
@@ -60,6 +61,47 @@
 (use-package ocamlformat)
 (use-package dune)
 (use-package utop)
+(use-package racket-mode
+  :ensure t
+  :hook
+  (racket-mode . racket-xp-mode)
+  :bind (:map racket-mode-map
+              ("C-c C-d" . racket-xp-describe)
+              ("M-."     . racket-xp-visit-declaration)
+              ("M-,"     . xref-pop-marker-stack)))
+
+(use-package sly :ensure t
+  :config (setq inferior-lisp-program "sbcl"))
+
+;; Clojure
+(use-package paredit
+  :hook ((clojure-mode . paredit-mode)
+         (cider-repl-mode . paredit-mode)
+         (emacs-lisp-mode . paredit-mode)))
+
+(use-package clojure-mode
+  :config
+  ;; Align map literals
+  (setq clojure-indent-style 'align-arguments)
+  ;; highlight matching parens
+  (show-paren-mode 1))
+
+(use-package cider
+  :config
+  (setq cider-repl-display-help-banner nil)
+  (setq cider-repl-pop-to-buffer-on-connect 'display-only)
+  ;; Show results inline
+  (setq cider-show-error-buffer 'only-in-repl)
+  ;; Pretty print by defaultt
+  (setq cider-repl-use-pretty-printing t)
+  (add-hook 'cider-mode-hook #'eldoc-mode)
+  (add-hook 'cider-repl-mode-hook #'eldoc-mode))
+
+(use-package rainbow-delimiters
+  :hook (clojure-mode . rainbow-delimiters-mode))
+(use-package clj-refactor
+  :hook (clojure-mode . clj-refactor-mode)
+  :config (cljr-add-keybindings-with-prefix "C-c C-m"))
 
 (setq utop-command "opam exec -- utop -emacs")
 

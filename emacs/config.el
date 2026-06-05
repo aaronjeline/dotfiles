@@ -174,3 +174,6 @@
 (setq MDK_PATH "/Users/aeline/src/mdk/mdk-1.3.1/misc/")
 (add-to-list 'load-path MDK_PATH)
 (require 'mixvm)
+
+(add-hook 'cider-repl-mode-hook #'turn-off-evil-mode)
+(add-hook 'sly-mrepl-mode #'turn-off-evil-mode)
