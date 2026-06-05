@@ -52,9 +52,16 @@
 ;;; Move Text
 ;(rc/require 'move-text)
 
-;;; Company (autocompletion)
-(use-package company :config (global-company-mode)
-  :hook (racket-mode . company-mode))
+;;; Corfu (CAPF-native autocompletion, works seamlessly with Eglot)
+(use-package corfu
+  :demand t
+  :custom
+  (corfu-auto t)
+  (corfu-auto-delay 0.2)
+  (corfu-auto-prefix 1)   ; trigger after 1 char (so `.f` pops up)
+  (corfu-cycle t)
+  :init
+  (global-corfu-mode))
 
 ;;; Language modes
 (use-package rust-mode)
@@ -240,14 +247,6 @@
   :vc (:url "https://github.com/sogaiu/janet-ts-mode"
             :rev :newest))
 
-;; Wire company-capf as the sole backend when Eglot is managing the buffer,
-;; so LSP completions are not shadowed by other company backends.
-;; Use prefix-length 1 so completions pop up after typing one char (e.g. after a dot).
-(add-hook 'eglot-managed-mode-hook
-          (lambda ()
-            (setq-local company-backends '(company-capf))
-            (setq-local company-minimum-prefix-length 1)))
-
 ;; LSP server configurations
 (with-eval-after-load 'eglot
   (add-to-list 'eglot-server-programs
@@ -288,7 +287,6 @@
 
 ;;; Clean up modeline (hide minor modes)
 (setq eldoc-minor-mode-string nil)
-(setq company-lighter nil)
 (setq-default abbrev-mode nil)
 (with-eval-after-load 'flymake (setq flymake-mode-line-format nil))
 (with-eval-after-load 'envrc (setq envrc-lighter nil))
