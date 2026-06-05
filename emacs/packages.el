@@ -99,9 +99,42 @@
 (use-package tree-sitter-langs)
 (use-package evil-textobj-tree-sitter)
 
+(setq treesit-language-source-alist
+   '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+     (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+     (html "https://github.com/tree-sitter/tree-sitter-html")
+     (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+     (json "https://github.com/tree-sitter/tree-sitter-json")
+     (make "https://github.com/alemuller/tree-sitter-make")
+     (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+     (python "https://github.com/tree-sitter/tree-sitter-python")
+     (toml "https://github.com/tree-sitter/tree-sitter-toml")
+     (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+     (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+     (rust "https://github.com/tree-sitter/tree-sitter-rust")
+     ; Gotta clone this one manually! https://github.com/tree-sitter/tree-sitter-ocaml
+     (ocaml "/tmp/ts-ocaml" nil "grammars/ocaml/src")
+     (ocaml-interface "/tmp/ts-ocaml" nil "grammars/interface/src")
+     (janet-simple "https://github.com/sogaiu/tree-sitter-janet-simple")))
+
+
+(let ((failed '()))
+  (dolist (pair treesit-language-source-alist)
+    (let ((language (car pair)))
+      (when (not (treesit-language-available-p language))
+        (treesit-install-language-grammar language)
+        (when (not (treesit-language-available-p language))
+          (push language failed)))))
+  (if failed
+      (progn
+        (message "Failed grammars:")
+        (dolist (f failed)
+          (message " %s: Did not install!" f)))
+    (message "All grammars installed!")))
+
 ;;; CSS color preview
-(use-package rainbow-mode
-             :config
+  (use-package rainbow-mode
+    :config
     (add-hook 'css-mode-hook 'rainbow-mode)
     (add-hook 'html-mode-hook 'rainbow-mode)
     (add-hook 'js-mode-hook 'rainbow-mode)
@@ -198,6 +231,22 @@
 
 (add-hook 'tuareg-mode-hook #'eglot-ensure)
 (add-hook 'tuareg-mode 'utop-minor-mode)
+
+
+;; (when (not (treeset-language-available-p 'janet-simple))
+;;   (treeset-install-language-grammar 'janet-simple))
+
+(use-package janet-ts-mode
+  :vc (:url "https://github.com/sogaiu/janet-ts-mode"
+            :rev :newest))
+
+;; Wire company-capf as the sole backend when Eglot is managing the buffer,
+;; so LSP completions are not shadowed by other company backends.
+;; Use prefix-length 1 so completions pop up after typing one char (e.g. after a dot).
+(add-hook 'eglot-managed-mode-hook
+          (lambda ()
+            (setq-local company-backends '(company-capf))
+            (setq-local company-minimum-prefix-length 1)))
 
 ;; LSP server configurations
 (with-eval-after-load 'eglot
