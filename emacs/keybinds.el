@@ -94,7 +94,9 @@
   (evil-define-key 'normal eglot-mode-map
     "K" 'eldoc-box-help-at-point
     "gd" 'xref-find-definitions
-    "gr" 'xref-find-references))
+    "gr" 'xref-find-references
+    "]d" 'flymake-goto-prev-error
+    "[d" 'flymake-goto-next-error))
 
 (defun swap-buffers ()
   "Swaps buffers"

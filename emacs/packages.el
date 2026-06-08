@@ -86,6 +86,10 @@
 (use-package paredit
   :hook ((emacs-lisp-mode . paredit-mode)))
 
+(use-package metal-mode
+  :vc (:url "https://github.com/masfj/metal-mode")
+  :mode "\\.metal\\'")
+
 
 (setq utop-command "opam exec -- utop -emacs")
 
