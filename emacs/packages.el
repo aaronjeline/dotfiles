@@ -67,6 +67,7 @@
 (use-package rust-mode)
 (use-package web-mode)
 (use-package typescript-mode)
+(use-package swift-mode)
 (use-package tuareg)
 (use-package ocamlformat)
 (use-package dune)
@@ -123,6 +124,7 @@
      (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
      (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
      (rust "https://github.com/tree-sitter/tree-sitter-rust")
+     (swift "https://github.com/alex-pinkus/tree-sitter-swift" "with-generated-files")
      ; Gotta clone this one manually! https://github.com/tree-sitter/tree-sitter-ocaml
      (ocaml "/tmp/ts-ocaml" nil "grammars/ocaml/src")
      (ocaml-interface "/tmp/ts-ocaml" nil "grammars/interface/src")
@@ -239,6 +241,7 @@
 (add-hook 'c-mode-hook 'eglot-ensure)
 (add-hook 'typescript-mode-hook 'eglot-ensure)
 (add-hook 'tsx-ts-mode-hook 'eglot-ensure)
+(add-hook 'swift-mode-hook 'eglot-ensure)
 
 (add-hook 'tuareg-mode-hook #'eglot-ensure)
 (add-hook 'tuareg-mode 'utop-minor-mode)
@@ -259,7 +262,9 @@
   (add-to-list 'eglot-server-programs
                '(typescript-mode . ("typescript-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs
-               '(tsx-ts-mode . ("typescript-language-server" "--stdio"))))
+               '(tsx-ts-mode . ("typescript-language-server" "--stdio")))
+  (add-to-list 'eglot-server-programs
+               '(swift-mode . ("sourcekit-lsp"))))
 
 ;; File associations for TypeScript React
 (add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
